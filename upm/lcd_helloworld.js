@@ -9,4 +9,4 @@ myLCD.setColor(255, 0, 0);
  
 myLCD.setCursor(0,0);
 
-myLCD.write("çŽ‹ä");
+myLCD.write("saisai oyasumi nasai");

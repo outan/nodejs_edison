@@ -6,6 +6,10 @@ board.on("ready", function() {
 
   // Create a new `button` hardware instance.
   var button = new five.Button(2);
+  
+  button.on("change", function(value) {
+    console.log(value);
+  })
 
   button.on("hold", function() {
     console.log( "Button held" );

@@ -1,0 +1,31 @@
+{
+  "name": "nodejs_edison",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "edison-io": "^0.9.4",
+    "galileo-io": "^0.9.4",
+    "johnny-five": "^0.9.45",
+    "jsupm_adxl345": "^0.7.0",
+    "jsupm_i2clcd": "^0.4.1",
+    "sleep": "^3.0.1",
+    "socket.io": "^1.4.6"
+  },
+  "devDependencies": {
+    "mraa": "^1.4.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/outan/nodejs_edison.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/outan/nodejs_edison/issues"
+  },
+  "homepage": "https://github.com/outan/nodejs_edison#readme"
+}
