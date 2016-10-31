@@ -22,9 +22,7 @@
         appendMsg(data.value)
     });
 
-    socket2.on("buttonPressed", function(data){appendMsg(data.value)});
-    socket2.on("pressure-sensitive", function(data){appendMsg(data.value)});
-    socket2.on("message", function(data){appendMsg(data.value)});
+    socket2.on("result", function(data){appendMsg(data)});
 
     function appendMsg(text) {
         $("#Logs").append("<div>" + text + "</div>");

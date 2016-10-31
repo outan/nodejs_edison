@@ -3,24 +3,34 @@ var Edison = require("galileo-io");
 var board = new five.Board({io: new Edison()});
 
 board.on("ready", function() {
-  var count   = 0;
+  var count              = 0;
+  var shougaibutu_num    = 0;
+  var light_num          = 0;
+  var light_limit_opened = 300;
+  var light_threshold    = 300;
+  var led_congratulation = new five.Led(8);
+  var led_shougai        = new five.Led(13);
+  var shougaibutu1       = new five.Sensor.Digital(5);
+  var shougaibutu2       = new five.Sensor.Digital(6);
+  var shougaibutu3       = new five.Sensor.Digital(4);
+  var is_joke            = 0;
 
-  var led1    = new five.Led(7);
-  var ready        = 0;
-  var led_ready    = new five.Led(8);
-  //var touch_button = new five.Button(6);
-  var led_shougai  = new five.Led(13);
-  var shougaibutu1 = new five.Sensor.Digital(2);
-  var shougaibutu2 = new five.Sensor.Digital(3);
-  var shougaibutu3 = new five.Sensor.Digital(4);
-  var pressure_sensitive = new five.Sensor({
-    pin: "A0",
-    threshold: 20
-  });
+  var light1  = new five.Sensor({
+                  pin: 'A0',
+                  threshold: light_threshold
+              });
+  var light2  = new five.Sensor({
+                  pin: 'A1',
+                  threshold: light_threshold
+              });
+  var light3  = new five.Sensor({
+                  pin: 'A2',
+                  threshold: light_threshold
+              });
 
-  var http = require( 'http' ); // HTTPモジュール読み込み
-  var socketio = require( 'socket.io' ); // Socket.IOモジュール読み込み
-  var fs = require( 'fs' ); // ファイル入出力モジュール読み込み
+  var http = require( 'http' );
+  var socketio = require( 'socket.io' );
+  var fs = require( 'fs' );
 
   // 3000番ポートでHTTPサーバーを立てる
   var server = http.createServer( function( req, res ) {
@@ -29,7 +39,6 @@ board.on("ready", function() {
   }).listen(3000);
 
   var io = socketio.listen( server );
-  // 接続確立後の通信処理部分を定義
   io.sockets.on( 'connection', function(socket) {
     console.log('I am connectted');
   });
@@ -38,100 +47,151 @@ board.on("ready", function() {
     if(this.value == 0) {
       io.sockets.emit("shougaibutu", {value: "障害物1を検知した"});
       led_shougai.on();
-      console.log("障害物1検知した。");
+      shougaibutu_num = 1;
+      console.log("障害物1検知した");
     }
     else {
-      io.sockets.emit("shougaibutu", {value : "障害物1がなくなった"});
+      io.sockets.emit("shougaibutu", {value : "障害物1なし"});
       led_shougai.off();
-      console.log("障害物1がなくなった。");
+      led_congratulation.stop().off();
+      is_joke = 0;
+      shougaibutu_num = 0;
+      console.log("障害物1なし");
     }
   });
 
-shougaibutu2.on('change', function () {
+  shougaibutu2.on('change', function () {
     if(this.value == 0) {
       io.sockets.emit("shougaibutu", {value: "障害物2を検知した"});
       led_shougai.on();
-      console.log("障害物2検知した。");
+      shougaibutu_num = 2;
+      console.log("障害物2検知した");
     }
     else {
-      io.sockets.emit("shougaibutu", {value : "障害物2がなくなった"});
+      io.sockets.emit("shougaibutu", {value : "障害物2なし"});
       led_shougai.off();
-      console.log("障害物2がなくなった。");
+      led_congratulation.stop().off();
+      is_joke = 0;
+      shougaibutu_num = 0;
+      console.log("障害物2なし");
+
     }
   });
 
-shougaibutu3.on('change', function () {
+  shougaibutu3.on('change', function () {
     if(this.value == 0) {
       io.sockets.emit("shougaibutu", {value: "障害物3を検知した"});
       led_shougai.on();
-      console.log("障害物3検知した。");
+      shougaibutu_num = 3;
+      console.log("障害物3検知した");
     }
     else {
-      io.sockets.emit("shougaibutu", {value : "障害物3がなくなった"});
+      io.sockets.emit("shougaibutu", {value : "障害物3なし"});
       led_shougai.off();
-      console.log("障害物3がなくなった。");
+      led_congratulation.stop().off();
+      is_joke = 0;
+      shougaibutu_num = 0;
+      console.log("障害物3なし");
     }
   });
 
 
-  pressure_sensitive.on("change", function(value) {
-    if (value > 1000) {
-      io.sockets.emit("pressure-sensitive", {value: "box is open"});
-      console.log("box is open");
+  light1.on('change', function () {
+    console.log("light1 value is "+this.value);
+    if (is_joke == 1)
+      console.log("お菓子を取ってください。");
+    else if (this.value > light_limit_opened) {
+      light_num = 1;
+      console.log("box1 is opened");
+      sendMessage (light_num, this.value);
+    } else {
+      led_congratulation.stop().off();
+      console.log("box1 is closed");
+      if (shougaibutu_num > 0 && shougaibutu_num == light_num) {
+        console.log("お菓子を取ってください。");
+        is_joke = 1;
+        io.sockets.emit('result', 0);
+      }
     }
-    //else {
-    //    io.sockets.emit("pressure-sensitive", {value: "box is closed"});
-    //    console.log("box is closed");
-    //}
-  });
+  })
+
+ light2.on('change', function () {
+    console.log("light2 value is "+this.value);
+    if (is_joke == 1)
+      console.log("お菓子を取ってください。");
+    else if (this.value > light_limit_opened) {
+      light_num = 2;
+      console.log("box2 is opened");
+      sendMessage (light_num, this.value);
+    } else {
+      led_congratulation.stop().off();
+      console.log("box2 is closed");
+       if (shougaibutu_num > 0 && shougaibutu_num == light_num) {
+        console.log("お菓子を取ってください。");
+        is_joke = 1;
+        io.sockets.emit('result', 0);
+       }
+    }
+  })
+
+ light3.on('change', function () {
+    console.log("light3 value is "+this.value);
+    if (is_joke == 1)
+      console.log("お菓子を取ってください。");
+    else if (this.value > light_limit_opened) {
+      light_num = 3;
+      console.log("box3 is opened");
+      sendMessage (light_num, this.value);
+    } else {
+      led_congratulation.stop().off();
+      console.log("box3 is closed");
+      if (shougaibutu_num > 0 && shougaibutu_num == light_num) {
+        console.log("お菓子を取ってください。");
+        is_joke = 1;
+        io.sockets.emit('result', 0);
+      }
+    }
+  })
 
 
-  //touch_button.on("press", function() {
-  //  led_ready.blink();
-  //  ready = 1;
-  //  console.log("touch_button is pressed");
-  //  console.log("ready is "+ready);
-  //  io.sockets.emit('outan', 5);
-  //});
+  function is_ready(light_value) {
+    console.log("shougaibutu_num is "+shougaibutu_num);
+    console.log("light_num is "+light_num);
+    if (shougaibutu_num > 0 && light_value > light_limit_opened && is_joke == 0) {
+        console.log("I'm ready!");
+      return true;
+    } else {
+        console.log("I'm not ready yet!");
 
-  function sendMessage (num,value) {
-    if (ready == 1 && value > 550) {
-      console.log("ready is "+ ready);
-      console.log("box"+num+" openned");
-      console.log("light"+num+" value is "+value);
+      return false;
+    }
+  }
+
+  function sendMessage (light_num,light_value) {
+    if (is_ready(light_value)) {
+      console.log("box"+light_num+" openned");
       //io.sockets.emit( 'boxOpenned', { value : "box"+num+" is openned" } );
       count++;
+      console.log("操作回数count is " + count);
 
-      console.log("count is " + count);
-      if (button == num) {
-        if (count == 1) {
-          io.sockets.emit( 'outan', 1);
-          count = 0;
-          led1.blink();
-          led_ready.stop().off();
-          ready = 0;
-        } else if (count == 2) {
-          io.sockets.emit( 'outan', 2);
-          count = 0;
-          led1.blink();
-          led_ready.stop().off();
-          ready = 0;
-        } else {
-          io.sockets.emit( 'outan', 3 );
-          count = 0;
-          led1.blink();
-          led_ready.stop().off();
-          ready = 0
-        }
+      if (shougaibutu_num > 0 && shougaibutu_num == light_num) {
+        console.log(count+"回当たり、おめでとう");
+        io.sockets.emit('result', count);
+        count = 0;
+        led_congratulation.blink();
+        //shougaibutu_num = 0;
+        light_num = 0;
       } else {
-        io.sockets.emit('outan', 4);
-        led_ready.stop().off();
+          console.log("はずれ。残念！もう一回やってみて");
+          //io.sockets.emit('result', 4);
+          io.sockets.emit('result', count);
+
+
+
       }
     } else {
-      console.log("ready is "+ready);
-      //console.log("box"+num+" closed");
-      console.log("light"+num+" value is "+value);
-      led1.stop().off()
+      //console.log();
+      led_congratulation.stop().off()
     }
   };
 });
