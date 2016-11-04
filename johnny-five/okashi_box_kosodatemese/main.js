@@ -5,13 +5,16 @@ var board = new five.Board({io: new Edison()});
 board.on("ready", function() {
   var count              = 0;
   var shougaibutu_num    = 0;
+  var box1               = 0;
+  var box2               = 0;
+  var box3               = 0;
   var light_num          = 0;
-  var light_limit_opened = 300;
-  var light_threshold    = 300;
-  var led_congratulation = new five.Led(8);
+  var light_limit_opened = 600;
+  var light_threshold    = 340;
+  var led_congratulation = new five.Led(5);
   var led_shougai        = new five.Led(13);
-  var shougaibutu1       = new five.Sensor.Digital(5);
-  var shougaibutu2       = new five.Sensor.Digital(6);
+  var shougaibutu1       = new five.Sensor.Digital(7);
+  var shougaibutu2       = new five.Sensor.Digital(8);
   var shougaibutu3       = new five.Sensor.Digital(4);
   var is_joke            = 0;
 
@@ -49,12 +52,16 @@ board.on("ready", function() {
       shougaibutu_num = 1;
       console.log("障害物1検知した");
       if (is_ready_go())
-        io.sockets.emit("statue", "ready");
-    }
-    else {
+        io.sockets.emit("status", 1);
+      else {
+        io.sockets.emit("status",0);
+        console.log("すべての箱を閉めてください");
+      }
+    } else {
       led_shougai.off();
       led_congratulation.stop().off();
-      //shougaibutu_num = 0;
+      shougaibutu_num = 0;
+      is_joke = 0;
       console.log("障害物1なし");
     }
   });
@@ -65,14 +72,17 @@ board.on("ready", function() {
       shougaibutu_num = 2;
       console.log("障害物2検知した");
       if (is_ready_go())
-        io.sockets.emit("statue", "ready");
-    }
-    else {
+        io.sockets.emit("status", 1); 
+      else {
+        io.sockets.emit("status",0);
+        console.log("すべての箱を閉めてください");
+      }
+    } else {
       led_shougai.off();
       led_congratulation.stop().off();
-     // shougaibutu_num = 0;
+      shougaibutu_num = 0;
       console.log("障害物2なし");
-
+      is_joke = 0;
     }
   });
 
@@ -83,15 +93,17 @@ board.on("ready", function() {
       shougaibutu_num = 3;
       console.log("障害物3検知した");
       if(is_ready_go())
-        io.sockets.emit("status", "ready");
-        
-    }
-    else {
+        io.sockets.emit("status", 1);
+      else {
+        io.sockets.emit("status",0);
+        console.log("すべての箱を閉めてください");
+      }
+    } else {
       io.sockets.emit("shougaibutu", {value : "障害物3なし"});
       led_shougai.off();
       led_congratulation.stop().off();
-     // is_joke = 0;
-     // shougaibutu_num = 0;
+      is_joke = 0;
+      shougaibutu_num = 0;
       console.log("障害物3なし");
     }
   });
@@ -100,62 +112,87 @@ board.on("ready", function() {
   light1.on('change', function () {
     console.log("light1 value is "+this.value);
     if (this.value > light_limit_opened) {
-      light_num = 1;
+      box1 = 1;
       console.log("box1 is opened");
-      //if (is_getable()) {
-      //  io.sockets.emit('resulut', 0);
-      //  console.log("お菓子1を取ってください。");
-      //} else
+      if (is_joke) {
+        io.sockets.emit('status', 2);
+        console.log("お菓子1を取ってください。");
+      } else {
+        light_num = 1;
         judgeSendCount (light_num, this.value);
+      }
     } else {
+        box1 = 0;
         led_congratulation.stop().off();
         console.log("box1 is closed");
         if (is_getable()) {
           console.log("お菓子1を取ってください。");
-          //is_joke = 1;
-          io.sockets.emit('result', 0);
+          is_joke = 1;
+          io.sockets.emit('status', 2);
         }
+        if (all_box_closed()&&!is_joke)
+          light_num = 0;
     }
   })
 
- light2.on('change', function () {
+  function all_box_closed() {
+    console.log("box1 is "+box1);
+    console.log("box2 is "+box2);
+    console.log("box3 is "+box3);
+    return (box1 == 0 && box2 == 0 && box3 == 0)? 1: 0;
+  }
+
+  light2.on('change', function () {
     console.log("light2 value is "+this.value);
-    if (is_getable())
-      console.log("お菓子2を取ってください。");
-    else if (this.value > light_limit_opened) {
-      light_num = 2;
+    if (this.value > light_limit_opened) {
       console.log("box2 is opened");
-      judgeSendCount (light_num, this.value);
-    } else {
-      led_congratulation.stop().off();
-      console.log("box2 is closed");
-       if (shougaibutu_num > 0 && shougaibutu_num == light_num) {
+      box2 = 1;
+      if (is_joke) {
+        io.sockets.emit('status', 2);
         console.log("お菓子2を取ってください。");
-        is_joke = 1;
-        io.sockets.emit('result', 0);
-       }
-    }
-  })
-
- light3.on('change', function () {
-    console.log("light3 value is "+this.value);
-    if (is_getable())
-      console.log("お菓子3を取ってください。");
-    else if (this.value > light_limit_opened) {
-      light_num = 3;
-      console.log("box3 is opened");
-      judgeSendCount (light_num, this.value);
-    } else {
-      led_congratulation.stop().off();
-      console.log("box3 is closed");
-      if (shougaibutu_num > 0 && shougaibutu_num == light_num) {
-        console.log("お菓子3を取ってください。");
-        is_joke = 1;
-        io.sockets.emit('result', 0);
+      } else {
+        light_num = 2;
+        judgeSendCount (light_num, this.value);
       }
+    } else {
+        box2 = 0;
+        led_congratulation.stop().off();
+        console.log("box2 is closed");
+        if (is_getable()) {
+          console.log("お菓子2を取ってください。");
+          is_joke = 1;
+          io.sockets.emit('status', 2);
+        }
+        if(all_box_closed()&&!is_joke)
+          light_num = 0;
     }
   })
 
+  light3.on('change', function () {
+    console.log("light3 value is "+this.value);
+    if (this.value > light_limit_opened) {
+      box3 = 1;
+      console.log("box3 is opened");
+      if (is_joke) {
+        io.sockets.emit('status', 2);
+        console.log("お菓子3を取ってください。");
+      } else {
+        light_num = 3;
+        judgeSendCount (light_num, this.value);
+      }
+    } else {
+        box3 = 0;
+        led_congratulation.stop().off();
+        console.log("box3 is closed");
+        if (is_getable()) {
+          console.log("お菓子3を取ってください。");
+          is_joke = 1;
+          io.sockets.emit('status', 2);
+        }
+        if (all_box_closed()&&!is_joke)
+          light_num = 0;
+    }
+  })
 
   function is_getable() {
     console.log("shougaibutu_num is "+shougaibutu_num);
@@ -170,19 +207,9 @@ board.on("ready", function() {
     //return (shougaibutu_num > 0 && shougaibutu_num == light_num) ? 1 :0;
   }
 
-  function is_ready_open(light_value) {
+  function is_ready_go() {
     console.log("shougaibutu_num is "+shougaibutu_num);
     console.log("light_num is "+light_num);
-    if (shougaibutu_num > 0 && light_value > light_limit_opened) {
-       // console.log("I'm ready!");
-      return true;
-    } else {
-        //console.log("I'm not ready yet!");
-      return false;
-    }
-  }
-
-  function is_ready_go() {
     if (shougaibutu_num > 0 && light_num == 0) {
       console.log("I'm ready!");
       return 1;
@@ -194,29 +221,28 @@ board.on("ready", function() {
 
   }
 
-  function judgeSendCount (light_num,light_value) {
+  function judgeSendCount () {
     console.log("in judgeSendCount method");
-    if (is_ready_open(light_value)) {
-      console.log("from ready to open");
-      console.log("box"+light_num+" openned");
-      //io.sockets.emit( 'boxOpenned', { value : "box"+num+" is openned" } );
+    if (shougaibutu_num) {
       count++;
       console.log("操作回数count is " + count);
 
-      if (shougaibutu_num > 0 && shougaibutu_num == light_num) {
+      if (shougaibutu_num == light_num) {
         console.log(count+"回当たり、おめでとう");
         io.sockets.emit('result', count);
         count = 0;
         led_congratulation.blink();
         //shougaibutu_num = 0;
-        light_num = 0;
+        //light_num = 0;
       } else {
           console.log("はずれ。残念！もう一回やってみて");
           //io.sockets.emit('result', 4);
-          io.sockets.emit('result', count);
+          io.sockets.emit('result', 0);
       }
     } else {
       //console.log();
+      console.log("お菓子をいれていくださいね。");
+      io.sockets.emit("status",3);
       led_congratulation.stop().off()
     }
   };
