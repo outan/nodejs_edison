@@ -17,6 +17,23 @@ board.on("ready", function() {
   var shougaibutu2       = new five.Sensor.Digital(8);
   var shougaibutu3       = new five.Sensor.Digital(4);
   var is_joke            = 0;
+  // mode = 1 (game), mode = 2 (idle)
+  var mode               = 1; 
+  var mode_button        = new five.Sensor.Ditital(6);
+  
+  mode_button.on("press", function() {
+    console.log( "Button pressed" );
+    if(mode == 1) {
+      mode = 2;
+      io.sockets.emit("mode",2);
+    } else {
+      mode = 1;
+      temp = mode
+      while (temp == 1)
+        setTimeout(io.sockets.emit("mode",1),3);
+        temp = mode
+    }
+  });
 
   var light1  = new five.Sensor({
                   pin: 'A0',
