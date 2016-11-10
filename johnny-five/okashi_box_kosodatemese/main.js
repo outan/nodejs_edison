@@ -10,7 +10,7 @@ board.on("ready", function() {
   var box3               = 0;
   var light_num          = 0;
   var light_limit_opened = 600;
-  var light_threshold    = 340;
+  var light_threshold    = 200;
   var led_congratulation = new five.Led(5);
   var led_shougai        = new five.Led(13);
   var shougaibutu1       = new five.Sensor.Digital(7);
@@ -18,20 +18,28 @@ board.on("ready", function() {
   var shougaibutu3       = new five.Sensor.Digital(4);
   var is_joke            = 0;
   // mode = 1 (game), mode = 2 (idle)
-  var mode               = 1; 
-  var mode_button        = new five.Sensor.Ditital(6);
+  var mode               = 2;
+  var mode_button        = new five.Button(6);
   
   mode_button.on("press", function() {
     console.log( "Button pressed" );
     if(mode == 1) {
       mode = 2;
+      console.log("mode is "+mode);
       io.sockets.emit("mode",2);
+      console.log("emit mode 2");
     } else {
       mode = 1;
-      temp = mode
-      while (temp == 1)
-        setTimeout(io.sockets.emit("mode",1),3);
-        temp = mode
+      if (mode == 1) {
+        io.sockets.emit("mode",1);
+        console.log("emit mode 1");
+      }
+      setInterval(function() {
+        if (mode == 1) {
+          io.sockets.emit("mode",1);
+          console.log("emit mode 1");
+        }
+      },15000);
     }
   });
 
