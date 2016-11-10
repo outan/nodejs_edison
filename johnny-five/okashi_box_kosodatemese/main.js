@@ -5,9 +5,9 @@ var board = new five.Board({io: new Edison()});
 board.on("ready", function() {
   var count              = 0;
   var shougaibutu_num    = 0;
-  var box1               = 0;
-  var box2               = 0;
-  var box3               = 0;
+  var box1_status        = 0;
+  var box2_status        = 0;
+  var box3_status        = 0;
   var light_num          = 0;
   var light_limit_opened = 600;
   var light_threshold    = 200;
@@ -137,7 +137,7 @@ board.on("ready", function() {
   light1.on('change', function () {
     console.log("light1 value is "+this.value);
     if (this.value > light_limit_opened) {
-      box1 = 1;
+      box1_status = 1;
       console.log("box1 is opened");
       if (is_joke) {
         io.sockets.emit('status', 2);
@@ -147,7 +147,7 @@ board.on("ready", function() {
         judgeSendCount (light_num, this.value);
       }
     } else {
-        box1 = 0;
+        box1_status = 0;
         led_congratulation.stop().off();
         console.log("box1 is closed");
         if (is_getable()) {
@@ -161,17 +161,17 @@ board.on("ready", function() {
   })
 
   function all_box_closed() {
-    console.log("box1 is "+box1);
-    console.log("box2 is "+box2);
-    console.log("box3 is "+box3);
-    return (box1 == 0 && box2 == 0 && box3 == 0)? 1: 0;
+    console.log("box1 is "+box1_status);
+    console.log("box2 is "+box2_status);
+    console.log("box3 is "+box3_status);
+    return (box1_status == 0 && box2_status == 0 && box3_status == 0)? 1: 0;
   }
 
   light2.on('change', function () {
     console.log("light2 value is "+this.value);
     if (this.value > light_limit_opened) {
       console.log("box2 is opened");
-      box2 = 1;
+      box2_status = 1;
       if (is_joke) {
         io.sockets.emit('status', 2);
         console.log("お菓子2を取ってください。");
@@ -180,7 +180,7 @@ board.on("ready", function() {
         judgeSendCount (light_num, this.value);
       }
     } else {
-        box2 = 0;
+        box2_status = 0;
         led_congratulation.stop().off();
         console.log("box2 is closed");
         if (is_getable()) {
@@ -196,7 +196,7 @@ board.on("ready", function() {
   light3.on('change', function () {
     console.log("light3 value is "+this.value);
     if (this.value > light_limit_opened) {
-      box3 = 1;
+      box3_status = 1;
       console.log("box3 is opened");
       if (is_joke) {
         io.sockets.emit('status', 2);
@@ -206,7 +206,7 @@ board.on("ready", function() {
         judgeSendCount (light_num, this.value);
       }
     } else {
-        box3 = 0;
+        box3_status = 0;
         led_congratulation.stop().off();
         console.log("box3 is closed");
         if (is_getable()) {
