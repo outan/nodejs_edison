@@ -4,10 +4,10 @@ var board = new five.Board({io: new Edison()});
 
 board.on("ready", function() {
   var count              = 0;
-  var shougaibutu_num    = 0;
   var box1_status        = 0;
   var box2_status        = 0;
   var box3_status        = 0;
+  var shougaibutu_num    = 0;
   var light_num          = 0;
   var light_limit_opened = 600;
   var light_threshold    = 200;
@@ -17,32 +17,9 @@ board.on("ready", function() {
   var shougaibutu2       = new five.Sensor.Digital(8);
   var shougaibutu3       = new five.Sensor.Digital(4);
   var is_joke            = 0;
-  // mode = 1 (game), mode = 2 (idle)
-  var mode               = 2;
+  var mode               = 2; // mode = 1 (game), mode = 2 (idle)
   var mode_button        = new five.Button(6);
   
-  mode_button.on("press", function() {
-    console.log( "Button pressed" );
-    if(mode == 1) {
-      mode = 2;
-      console.log("mode is "+mode);
-      io.sockets.emit("mode",2);
-      console.log("emit mode 2");
-    } else {
-      mode = 1;
-      if (mode == 1) {
-        io.sockets.emit("mode",1);
-        console.log("emit mode 1");
-      }
-      setInterval(function() {
-        if (mode == 1) {
-          io.sockets.emit("mode",1);
-          console.log("emit mode 1");
-        }
-      },15000);
-    }
-  });
-
   var light1  = new five.Sensor({
                   pin: 'A0',
                   threshold: light_threshold
@@ -69,6 +46,28 @@ board.on("ready", function() {
   var io = socketio.listen( server );
   io.sockets.on( 'connection', function(socket) {
     console.log('I am connectted with socketio');
+  });
+
+  mode_button.on("press", function() {
+    console.log( "Button pressed" );
+    if(mode == 1) {
+      mode = 2;
+      console.log("mode is "+mode);
+      io.sockets.emit("mode",2);
+      console.log("emit mode 2");
+    } else {
+      mode = 1;
+      if (mode == 1) {
+        io.sockets.emit("mode",1);
+        console.log("emit mode 1");
+      }
+      setInterval(function() {
+        if (mode == 1) {
+          io.sockets.emit("mode",1);
+          console.log("emit mode 1");
+        }
+      },15000);
+    }
   });
 
   shougaibutu1.on('change', function () {
