@@ -72,18 +72,18 @@ board.on("ready", function() {
       item_found_led.on();
       item_found_num = 1;
       console.log("障害物1検知した");
-      if (is_ready_go())
+      if(is_ready_go())
         io.sockets.emit("status", 1);
       else {
         io.sockets.emit("status",0);
         console.log("すべての箱を閉めてください");
       }
-    } else {
+    } else if(box1_status == 1) {
       item_found_led.off();
       led_congratulation.stop().off();
       item_found_num = 0;
       is_joke = 0;
-      console.log("障害物1なし");
+      console.log("障害物1が取れました");
     }
   });
 
@@ -92,17 +92,17 @@ board.on("ready", function() {
       item_found_led.on();
       item_found_num = 2;
       console.log("障害物2検知した");
-      if (is_ready_go())
+      if(is_ready_go())
         io.sockets.emit("status", 1); 
       else {
         io.sockets.emit("status",0);
         console.log("すべての箱を閉めてください");
       }
-    } else {
+    } else if(box2_status == 1) {
       item_found_led.off();
       led_congratulation.stop().off();
       item_found_num = 0;
-      console.log("障害物2なし");
+      console.log("障害物2が取れました");
       is_joke = 0;
     }
   });
@@ -119,13 +119,13 @@ board.on("ready", function() {
         io.sockets.emit("status",0);
         console.log("すべての箱を閉めてください");
       }
-    } else {
-      io.sockets.emit("shougaibutu_sensor", {value : "障害物3なし"});
+    } else if(box3_status == 1) {
+      io.sockets.emit("shougaibutu_sensor", {value : "障害物3が取れました"});
       item_found_led.off();
       led_congratulation.stop().off();
       is_joke = 0;
       item_found_num = 0;
-      console.log("障害物3なし");
+      console.log("障害物3が取れました");
     }
   });
 
