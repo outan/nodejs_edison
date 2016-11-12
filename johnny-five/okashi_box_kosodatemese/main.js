@@ -17,7 +17,7 @@ board.on("ready", function() {
   var shougaibutu_sensor2    = new five.Sensor.Digital(8);
   var shougaibutu_sensor3    = new five.Sensor.Digital(4);
   var is_joke                = 0;
-  var mode                   = 2; // mode = 1 (game), mode = 2 (idle)
+  var mode                   = 0; // 0:idle, 1:game
   var mode_button            = new five.Button(6);
   
   var light_sensor1  = new five.Sensor({
@@ -50,22 +50,19 @@ board.on("ready", function() {
 
   mode_button.on("press", function() {
     console.log( "Button pressed" );
-    if(mode == 1) {
-      mode = 2;
-      console.log("mode is "+mode);
-      io.sockets.emit("mode",2);
-      console.log("emit mode 2");
-    } else {
+    if(mode == 0) {
       mode = 1;
-      if (mode == 1) {
-        io.sockets.emit("mode",1);
-        console.log("emit mode 1");
-      }
+      console.log("mode is "+mode);
+      io.sockets.emit("mode",1);
+      console.log("emit mode 1:game mode");
+    } else {
+      mode = 0;
+      io.sockets.emit("mode",0);
+      console.log("emit mode 0:idle mode");
+
       setInterval(function() {
-        if (mode == 1) {
-          io.sockets.emit("mode",1);
-          console.log("emit mode 1");
-        }
+        io.sockets.emit("mode",0);
+        console.log("emit mode 0:idle mode");
       },15000);
     }
   });
