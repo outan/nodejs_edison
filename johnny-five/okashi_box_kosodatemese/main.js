@@ -8,10 +8,13 @@ board.on("ready", function() {
   var box1_status            = 0;
   var box2_status            = 0;
   var box3_status            = 0;
+  var item1_status           = 0;
+  var item2_status           = 0;
+  var item3_status           = 0;
   var item_found_num         = 0;
   var box_opened_num         = 0;
   var box_opened_light_limit = 600;
-  var light_change_threshold = 200;
+  var light_change_threshold = 300;
   //var led_congratulation     = new five.Led(5);
   var item_found_led         = new five.Led(13);
   var shougaibutu_sensor1    = new five.Sensor.Digital(7);
@@ -86,9 +89,11 @@ board.on("ready", function() {
       item_found_led.on();
       item_found_num = 1;
       console.log("障害物1検知した");
-      if(is_ready_go())
+      if(item1_status == 0 && is_ready_go()) {
         io.sockets.emit("status", 1);
-      else {
+        item1_status = 1;
+      }
+      else if(is_ready_go() == 0) {
         io.sockets.emit("status",0);
         console.log("すべての箱を閉めてください");
       }
@@ -97,6 +102,7 @@ board.on("ready", function() {
       //led_congratulation.stop().off();
       item_found_num = 0;
       is_joke = 0;
+      item1_status = 0;
       console.log("障害物1が取れました");
     }
   });
@@ -106,9 +112,11 @@ board.on("ready", function() {
       item_found_led.on();
       item_found_num = 2;
       console.log("障害物2検知した");
-      if(is_ready_go())
+      if(item2_status == 0 && is_ready_go()) {
         io.sockets.emit("status", 1); 
-      else {
+        item2_status = 1;
+      }
+      else if(is_ready_go() == 0){
         io.sockets.emit("status",0);
         console.log("すべての箱を閉めてください");
       }
@@ -118,6 +126,7 @@ board.on("ready", function() {
       item_found_num = 0;
       console.log("障害物2が取れました");
       is_joke = 0;
+      item2_status = 0;
     }
   });
 
@@ -127,9 +136,11 @@ board.on("ready", function() {
       item_found_led.on();
       item_found_num = 3;
       console.log("障害物3検知した");
-      if(is_ready_go())
+      if(item3_status == 0 && is_ready_go()) {
         io.sockets.emit("status", 1);
-      else {
+        item3_status = 1;
+      }
+      else if (is_ready_go() == 0){
         io.sockets.emit("status",0);
         console.log("すべての箱を閉めてください");
       }
@@ -140,6 +151,7 @@ board.on("ready", function() {
       is_joke = 0;
       item_found_num = 0;
       console.log("障害物3が取れました");
+      item3_status = 0;
     }
   });
 
