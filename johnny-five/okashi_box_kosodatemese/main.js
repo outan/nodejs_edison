@@ -2,7 +2,7 @@ var five = require("johnny-five");
 var Edison = require("galileo-io");
 var board = new five.Board({io: new Edison()});
 var GCL = require("jsupm_my9221");
-var circle = new GCL.GroveCircularLED(9, 8);
+var circle = new GCL.GroveCircularLED(6, 5);
 var level = 0;
 var myInterval;
 
@@ -15,15 +15,16 @@ board.on("ready", function() {
   var box_opened_num         = 0;
   var box_opened_light_limit = 600;
   var light_change_threshold = 200;
-  var led_congratulation     = new five.Led(5);
+  //var led_congratulation     = new five.Led(5);
   var item_found_led         = new five.Led(13);
   var shougaibutu_sensor1    = new five.Sensor.Digital(7);
   var shougaibutu_sensor2    = new five.Sensor.Digital(8);
   var shougaibutu_sensor3    = new five.Sensor.Digital(4);
   var is_joke                = 0;
-  var mode                   = 0; // 0:idle, 1:game
-  var mode_button            = new five.Button(6);
-  
+  var mode                   = 1; // 0:idle, 1:game
+  var mode_button            = new five.Button(3);
+  var myInterval;
+
   var light_sensor1  = new five.Sensor({
                   pin: 'A0',
                   threshold: light_change_threshold
@@ -60,23 +61,25 @@ board.on("ready", function() {
       io.sockets.emit("mode",1);
       console.log("emit mode 1:game mode");
 
-      var myInterval = setInterval(function(){
-        circle.setSpinner(level);
-        level = (level + 1) % 24;
-      }, 30);
-    } else {
+      clearInterval(myInterval);
+      circle.setLevel(0);
+   } else {
       mode = 0;
       io.sockets.emit("mode",0);
       console.log("emit mode 0:idle mode");
 
       setInterval(function() {
-        io.sockets.emit("mode",0);
-        console.log("emit mode 0:idle mode");
+        if(mode == 0) {
+          io.sockets.emit("mode",0);
+          console.log("emit mode 0:idle mode");
+        }
       },15000);
 
-      clearInterval(myInterval);
-      circle.setLevel(0);
-    }
+      myInterval = setInterval(function(){
+          circle.setSpinner(level);
+          level = (level + 1) % 24;
+      }, 30);
+   }
   });
 
   shougaibutu_sensor1.on('change', function () {
@@ -92,7 +95,7 @@ board.on("ready", function() {
       }
     } else if(box1_status == 1) {
       item_found_led.off();
-      led_congratulation.stop().off();
+      //led_congratulation.stop().off();
       item_found_num = 0;
       is_joke = 0;
       console.log("障害物1が取れました");
@@ -112,7 +115,7 @@ board.on("ready", function() {
       }
     } else if(box2_status == 1) {
       item_found_led.off();
-      led_congratulation.stop().off();
+      //led_congratulation.stop().off();
       item_found_num = 0;
       console.log("障害物2が取れました");
       is_joke = 0;
@@ -134,7 +137,7 @@ board.on("ready", function() {
     } else if(box3_status == 1) {
       io.sockets.emit("shougaibutu_sensor", {value : "障害物3が取れました"});
       item_found_led.off();
-      led_congratulation.stop().off();
+      //led_congratulation.stop().off();
       is_joke = 0;
       item_found_num = 0;
       console.log("障害物3が取れました");
@@ -156,7 +159,7 @@ board.on("ready", function() {
       }
     } else {
         box1_status = 0;
-        led_congratulation.stop().off();
+        //led_congratulation.stop().off();
         console.log("box1 is closed");
         if (is_getable()) {
           console.log("お菓子1を取ってください。");
@@ -189,7 +192,7 @@ board.on("ready", function() {
       }
     } else {
         box2_status = 0;
-        led_congratulation.stop().off();
+        //led_congratulation.stop().off();
         console.log("box2 is closed");
         if (is_getable()) {
           console.log("お菓子2を取ってください。");
@@ -215,7 +218,7 @@ board.on("ready", function() {
       }
     } else {
         box3_status = 0;
-        led_congratulation.stop().off();
+        //led_congratulation.stop().off();
         console.log("box3 is closed");
         if (is_getable()) {
           console.log("お菓子3を取ってください。");
@@ -264,7 +267,7 @@ board.on("ready", function() {
         console.log(open_box_count+"回当たり、おめでとう");
         io.sockets.emit('result', open_box_count);
         open_box_count = 0;
-        led_congratulation.blink();
+        //led_congratulation.blink();
         //item_found_num = 0;
         //box_opened_num = 0;
       } else {
@@ -276,7 +279,7 @@ board.on("ready", function() {
       //console.log();
       console.log("お菓子をいれていくださいね。");
       io.sockets.emit("status",3);
-      led_congratulation.stop().off()
+      //led_congratulation.stop().off()
     }
   };
 });
