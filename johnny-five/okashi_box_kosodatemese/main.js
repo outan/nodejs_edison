@@ -228,21 +228,21 @@ board.on("ready", function() {
   })
 
   function is_getable() {
-    console.log("item_found_num is "+ item_num);
-    console.log("box_opened_num is "+light_num);
-    if (item_found_num > 0 && item_num == box_opened_num) {
+    console.log("item_found_num is "+ item_found_num);
+    console.log("box_opened_num is "+box_opened_num);
+    if (item_found_num > 0 && item_found_num == box_opened_num) {
       console.log("I'm getable.");
       return 1;
     } else {
       console.log("I'm not getable.");
       return 0;
     }
-    //return (item_found_num > 0 && item_num = box_opened_num) ? 1 :0;
+    //return (item_found_num > 0 && item_found_num = box_opened_num) ? 1 :0;
   }
 
   function is_ready_go() {
-    console.log("item_found_num is "+item_num);
-    console.log("box_opened_num is "+light_num);
+    console.log("item_found_num is "+item_found_num);
+    console.log("box_opened_num is "+box_opened_num);
     if (item_found_num > 0 && box_opened_num == 0) {
       console.log("I'm ready!");
       return 1;
