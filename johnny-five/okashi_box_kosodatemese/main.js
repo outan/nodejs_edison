@@ -161,10 +161,7 @@ board.on("ready", function() {
     if (this.value > box_opened_light_limit) {
       box1_status = 1;
       console.log("box1 is opened");
-      if (is_joke) {
-        io.sockets.emit('status', 2);
-        console.log("お菓子1を取ってください。");
-      } else {
+      if(is_joke == 0) {
         box_opened_num = 1;
         judgeSendCount (box_opened_num, this.value);
       }
@@ -194,10 +191,7 @@ board.on("ready", function() {
     if (this.value > box_opened_light_limit) {
       console.log("box2 is opened");
       box2_status = 1;
-      if (is_joke) {
-        io.sockets.emit('status', 2);
-        console.log("お菓子2を取ってください。");
-      } else {
+      if(is_joke == 0) {
         box_opened_num = 2;
         judgeSendCount (box_opened_num, this.value);
       }
@@ -220,10 +214,7 @@ board.on("ready", function() {
     if (this.value > box_opened_light_limit) {
       box3_status = 1;
       console.log("box3 is opened");
-      if (is_joke) {
-        io.sockets.emit('status', 2);
-        console.log("お菓子3を取ってください。");
-      } else {
+      if (is_joke == 0) {
         box_opened_num = 3;
         judgeSendCount (box_opened_num, this.value);
       }
