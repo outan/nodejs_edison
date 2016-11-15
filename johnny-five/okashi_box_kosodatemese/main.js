@@ -23,7 +23,7 @@ board.on("ready", function() {
   var is_joke                = 0;
   var mode                   = 1; // 0:idle, 1:game
   var mode_button            = new five.Button(3);
-  var myInterval;
+  var circular_led_interval;
 
   var light_sensor1  = new five.Sensor({
                   pin: 'A0',
@@ -61,7 +61,7 @@ board.on("ready", function() {
       io.sockets.emit("mode",1);
       console.log("emit mode 1:game mode");
 
-      clearInterval(myInterval);
+      clearInterval(circular_led_interval);
       circle.setLevel(0);
    } else {
       mode = 0;
@@ -75,7 +75,7 @@ board.on("ready", function() {
         }
       },15000);
 
-      myInterval = setInterval(function(){
+      circular_led_interval = setInterval(function(){
           circle.setSpinner(level);
           level = (level + 1) % 24;
       }, 30);
