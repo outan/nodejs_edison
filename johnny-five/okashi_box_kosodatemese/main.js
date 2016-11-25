@@ -1,8 +1,6 @@
 var five = require("johnny-five");
 var Edison = require("galileo-io");
 var board = new five.Board({io: new Edison()});
-var GCL = require("jsupm_my9221");
-var circle = new GCL.GroveCircularLED(6, 5);
 board.on("ready", function() {
   var open_box_count         = 0;
   var box1_status            = 0;
@@ -23,8 +21,6 @@ board.on("ready", function() {
   var is_joke                = 0;
   var mode                   = 1; // 0:idle, 1:game
   var mode_button            = new five.Button(3);
-  var circular_led_interval;
-  var level = 0;
   var idle_mode_interval;
   var reset_button           = new five.Pin({
                                  pin: 17,
@@ -72,9 +68,6 @@ board.on("ready", function() {
       console.log("emit mode 1:game mode");
 
       clearInterval(idle_mode_interval);
-
-      clearInterval(circular_led_interval);
-      circle.setLevel(0);
    } else {
       mode = 0;
       io.sockets.emit("mode",0);
@@ -84,11 +77,6 @@ board.on("ready", function() {
         io.sockets.emit("mode",0);
         console.log("emit mode 0:idle mode");
       },15000);
-
-      circular_led_interval = setInterval(function() {
-        circle.setSpinner(level);
-        level = (level + 1) % 24;
-      }, 30);
    }
   });
 
