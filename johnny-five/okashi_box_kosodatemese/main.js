@@ -22,10 +22,7 @@ board.on("ready", function() {
   var mode                   = 1; // 0:idle, 1:game
   var mode_button            = new five.Button(3);
   var idle_mode_interval;
-  var reset_button           = new five.Pin({
-                                 pin: 17,
-                                 type:"digital"
-                                });
+  var reset_button           = new five.Button(6);
 
   five.Pin.read(reset_button, function(error, value) {
       console.log(value);
@@ -80,16 +77,17 @@ board.on("ready", function() {
    }
   });
 
-//  reset_button.on('press', function() {
-//    console.log("reset_button is pressed");
-//    item_found_led.off();
-//    item_found_num = 0;
-//    is_joke = 0;
-//    item1_status = 0;
-//    item2_status = 0;
-//    item3_status = 0;
-//  });
-//
+  reset_button.on('press', function() {
+    console.log("reset_button is pressed");
+    item_found_led.off();
+    item_found_num = 0;
+    box_opened_num = 0;
+    is_joke = 0;
+    item1_status = 0;
+    item2_status = 0;
+    item3_status = 0;
+  });
+
   shougaibutu_sensor1.on('change', function () {
     if(this.value == 0) {
       item_found_led.on();
