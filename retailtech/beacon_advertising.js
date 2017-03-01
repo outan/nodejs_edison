@@ -12,6 +12,27 @@ board.on("ready", function() {
   var socketio = require( 'socket.io' );
   var fs = require( 'fs' );
   var led_13 = new five.Led(13);
+  var orderButton = new five.Button(2);
+  var mode = "order";
+
+  orderButton.on("press", function() {
+    console.log( "orderButton is pressed" );
+    if(mode == "order") {
+      mode = "explanation"
+      io.sockets.emit("mode", mode);
+      console.log("emit mode: " + mode);
+
+      explanation_mode_interval = setInterval(function() {
+        io.sockets.emit("mode", mode);
+        console.log("emit mode: " + mode);
+      },15000);
+    } else {
+      mode = "order"
+      io.sockets.emit("mode", mode);
+      console.log("emit mode: " + mode);
+      clearInterval(explanation_mode_interval);
+      }
+  });
 
   // 3000番ポートでHTTPサーバーを立てる
   var server = http.createServer( function( req, res ) {
