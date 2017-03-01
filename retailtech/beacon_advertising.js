@@ -17,6 +17,10 @@ board.on("ready", function() {
 
   orderButton.on("press", function() {
     console.log( "orderButton is pressed" );
+    orderOrExplanation();
+  });
+
+  function orderOrExplanation () {
     if(mode == "order") {
       mode = "explanation"
       io.sockets.emit("mode", mode);
@@ -32,7 +36,7 @@ board.on("ready", function() {
       console.log("emit mode: " + mode);
       clearInterval(explanation_mode_interval);
       }
-  });
+  }
 
   // 3000番ポートでHTTPサーバーを立てる
   var server = http.createServer( function( req, res ) {
@@ -68,7 +72,7 @@ board.on("ready", function() {
   function discoverPeripheral(peripheral) {
       console.log('discovered peripheral: \n' + peripheral);
       localName = peripheral.advertisement.localName;
-      if (localName.match(/nex/)) { 
+      if (localName.match(/nex_/)) { 
         console.log('Found device with local name: ' + localName);
         //led_13は5秒間点灯する
         led_13.blink(500);
@@ -77,7 +81,13 @@ board.on("ready", function() {
         noble.stopScanning();
 
         emitMessage = localName.slice(4);
-        io.sockets.emit("ble_button", emitMessage);
+
+        if (emitMessage == "order") {
+          orderOrExplanation();
+        } else {
+          io.sockets.emit("ble_button", emitMessage);
+        }
+
         console.log("emitted the message: " + emitMessage);
         // 5秒後startscan,  連打は無視される
         setTimeout(function(){noble.startScanning(serviceUUIDs, allowDuplicates)}, 5000);
