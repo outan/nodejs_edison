@@ -12,27 +12,27 @@ board.on("ready", function() {
   var socketio = require( 'socket.io' );
   var fs = require( 'fs' );
   var led_13 = new five.Led(13);
-  var orderButton = new five.Button(2);
+  var modeButton = new five.Button(2);
   var mode = "order";
 
-  orderButton.on("press", function() {
-    console.log( "orderButton is pressed" );
-    orderOrExplanation();
+  modeButton.on("press", function() {
+    console.log( "modeButton is pressed" );
+    changeMode();
   });
 
-  function orderOrExplanation () {
+  function changeMode () {
     if(mode == "order") {
       mode = "explanation"
-      io.sockets.emit("mode", mode);
+      io.sockets.emit("mode_button", mode);
       console.log("emit mode: " + mode);
 
       explanation_mode_interval = setInterval(function() {
-        io.sockets.emit("mode", mode);
+        io.sockets.emit("mode_button", mode);
         console.log("emit mode: " + mode);
       },15000);
     } else {
       mode = "order"
-      io.sockets.emit("mode", mode);
+      io.sockets.emit("mode_button", mode);
       console.log("emit mode: " + mode);
       clearInterval(explanation_mode_interval);
       }
@@ -82,10 +82,10 @@ board.on("ready", function() {
 
         emitMessage = localName.slice(4);
 
-        if (emitMessage == "order") {
-          orderOrExplanation();
+        if (emitMessage == "mode") {
+          changeMode();
         } else {
-          io.sockets.emit("ble_button", emitMessage);
+          io.sockets.emit("drink_button", emitMessage);
         }
 
         console.log("emitted the message: " + emitMessage);
