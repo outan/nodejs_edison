@@ -51,6 +51,8 @@ board.on("ready", function() {
         console.log("get speech_order: " + order);
         io.sockets.emit("speech_order", order);
         console.log("emit speech_order: " + order);
+        if (order == "notUnderstand")
+          io.sockets.emit('speech_once_again','speech')
     })
   });
 
