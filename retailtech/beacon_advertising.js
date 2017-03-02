@@ -80,15 +80,15 @@ board.on("ready", function() {
         // peripheralを検知したら、一旦stop scan(BTN01ビーコンボタンが押されたら、３秒間連続信号を飛ばしてしまうから。)
         noble.stopScanning();
 
-        emitMessage = localName.slice(4);
+        beaconName = localName.slice(4);
 
-        if (emitMessage == "mode") {
+        if (beaconName == "mode") {
           changeMode();
         } else {
-          io.sockets.emit("drink_button", emitMessage);
+          io.sockets.emit("drink_button", beaconName);
         }
 
-        console.log("emitted the message: " + emitMessage);
+        console.log("emitted the message: " + beaconName);
         // 5秒後startscan,  連打は無視される
         setTimeout(function(){noble.startScanning(serviceUUIDs, allowDuplicates)}, 5000);
       }
