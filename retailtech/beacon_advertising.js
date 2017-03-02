@@ -47,6 +47,11 @@ board.on("ready", function() {
   var io = socketio.listen( server );
   io.sockets.on( 'connection', function(socket) {
     console.log('some websocket client is connected to the websocket server edison');
+     socket.on("speech_order", function(order) {
+        console.log("get speech_order: " + order);
+        io.sockets.emit("speech_order", order);
+        console.log("emit speech_order: " + order);
+    })
   });
 
   //ペリフェラル検索のイベントに対するコールバック設定
@@ -84,8 +89,10 @@ board.on("ready", function() {
 
         if (beaconName == "mode") {
           changeMode();
+        } else if (beaconName == "speech") {
+            io.sockets.emit("speech_order_button", beaconName);
         } else {
-          io.sockets.emit("drink_button", beaconName);
+            io.sockets.emit("drink_button", beaconName);
         }
 
         console.log("emitted the message: " + beaconName);
