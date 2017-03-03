@@ -14,6 +14,7 @@ board.on("ready", function() {
   var led_13 = new five.Led(13);
   var modeButton = new five.Button(2);
   var mode = "order";
+  var explanation_mode_interval;
 
   modeButton.on("press", function() {
     console.log( "modeButton is pressed" );
@@ -92,6 +93,9 @@ board.on("ready", function() {
         if (beaconName == "mode") {
           changeMode();
         } else if (beaconName == "speech") {
+            if (explanation_mode_interval) {
+              clearInterval(explanation_mode_interval);
+            }
             io.sockets.emit("speech_order_button", beaconName);
         } else {
             io.sockets.emit("drink_button", beaconName);
