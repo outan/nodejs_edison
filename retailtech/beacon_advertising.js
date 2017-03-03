@@ -3,6 +3,7 @@ var noble = require('noble');
 var serviceUUIDs = ['1230010039fa4005860c09362f6169da'];
 var characteristicUUIDs = ['1230010139fa4005860c09362f6169da'];
 var allowDuplicates = true;
+var drinks = ['water', 'tee', 'coffee'];
 
 var five = require("johnny-five");
 var Edison = require("galileo-io");
@@ -36,6 +37,7 @@ board.on("ready", function() {
       io.sockets.emit("mode_button", mode);
       console.log("emit mode: " + mode);
       clearInterval(explanation_mode_interval);
+      console.log("clear explanation_mode_interval");
       }
   }
 
@@ -95,9 +97,14 @@ board.on("ready", function() {
         } else if (beaconName == "speech") {
             if (explanation_mode_interval) {
               clearInterval(explanation_mode_interval);
+              console.log("clear explanation_mode_interval");
             }
             io.sockets.emit("speech_order_button", beaconName);
-        } else {
+        } else if (drinks.indexOf(beaconName) >= 0) {
+            if (explanation_mode_interval) {
+              clearInterval(explanation_mode_interval);
+              console.log("clear explanation_mode_interval");
+            }
             io.sockets.emit("drink_button", beaconName);
         }
 
