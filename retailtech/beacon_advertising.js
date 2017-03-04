@@ -47,15 +47,24 @@ board.on("ready", function() {
     res.end( fs.readFileSync('./index.html', 'utf-8') );  // index.htmlの内容を出力
   }).listen(3000);
 
+  order_time = 0;
   var io = socketio.listen( server );
   io.sockets.on( 'connection', function(socket) {
     console.log('some websocket client is connected to the websocket server edison');
-     socket.on("speech_order", function(order) {
-        console.log("get speech_order: " + order);
+    socket.on("speech_order", function(order) {
+      console.log("get speech_order: " + order);
+      if (order != "notUnderstand") {
         io.sockets.emit("speech_order", order);
         console.log("emit speech_order: " + order);
-        if (order == "notUnderstand")
-          io.sockets.emit('speech_once_again','speech')
+      } else if (order == "notUnderstand" && order_time <=2) {
+          io.sockets.emit("speech_order", order);
+          io.sockets.emit("nao_say_text", "notUnderstand");
+          console.log("emit speech_order: " + order);
+          order_time++;
+      } else if (order == "notUnderstand" && order_time == 3) {
+          io.sockets.emit("nao_say_text", "speechToBeacon");
+          console.log("can't recgnize your order 3 times.Change to beacon.");
+      }
     })
   });
 
@@ -85,8 +94,8 @@ board.on("ready", function() {
       if (localName.match(/nex_/)) { 
         console.log('Found device with local name: ' + localName);
         //led_13は5秒間点灯する
-        led_13.blink(500);
-        setTimeout(function() {led_13.stop(), led_13.off()}, 5000)
+        //led_13.blink(500);
+        //setTimeout(function() {led_13.stop(), led_13.off()}, 5000)
         // peripheralを検知したら、一旦stop scan(BTN01ビーコンボタンが押されたら、３秒間連続信号を飛ばしてしまうから。)
         noble.stopScanning();
 
@@ -99,7 +108,11 @@ board.on("ready", function() {
               clearInterval(explanation_mode_interval);
               console.log("clear explanation_mode_interval");
             }
+            order_time = 0;
             io.sockets.emit("speech_order_button", beaconName);
+            io.sockets.emit("nao_say_text", "speechOrderExplanation");
+            setTimeout(function() {led_13.blink(500)}, 4000)
+            setTimeout(function() {led_13.stop(), led_13.off()}, 9000)
         } else if (drinks.indexOf(beaconName) >= 0) {
             if (explanation_mode_interval) {
               clearInterval(explanation_mode_interval);
